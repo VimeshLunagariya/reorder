@@ -59,7 +59,7 @@ class _DockState<T extends Object?> extends State<Dock<T>> {
     hoveredIndex = null;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _getCornerOffsets();
+      _getOffsets();
     });
   }
 
@@ -82,15 +82,15 @@ class _DockState<T extends Object?> extends State<Dock<T>> {
               setState(() {});
             },
             bottomLeft: _bottomLeftOffset,
-            bottomRight: _bottomRightOffset,
-            topLeft: _topLeftOffset,
-            topRight: _topRightOffset,
-            dragStartBehavior: DragStartBehavior.down,
-            scrollController: scrollController,
             shrinkWrap: true,
+            scrollController: scrollController,
+            topLeft: _topLeftOffset,
+            startingDragBehavior: DragStartBehavior.down,
             scrollDirection: Axis.horizontal,
+            bottomRight: _bottomRightOffset,
+            topRight: _topRightOffset,
             onReorder: (int oldIndex, int newIndex) {
-              _getCornerOffsets();
+              _getOffsets();
               setState(() {
                 if (newIndex > oldIndex) newIndex -= 1;
                 final T item = _items.removeAt(oldIndex);
@@ -111,17 +111,14 @@ class _DockState<T extends Object?> extends State<Dock<T>> {
                 }),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
-                  transform: Matrix4.identity()..translate(0.0, getTranslationY(index), 0.0),
+                  transform: Matrix4.identity()..translate(0.0, getYAxis(index), 0.0),
                   margin: const EdgeInsets.all(8),
                   child: AspectRatio(
                     aspectRatio: 1,
                     child: Container(
-                      height: getScaledSize(index),
-                      width: getScaledSize(index),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        color: Colors.primaries[item.hashCode % Colors.primaries.length],
-                      ),
+                      height: getAnimatedSize(index),
+                      width: getAnimatedSize(index),
+                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: Colors.primaries[item.hashCode % Colors.primaries.length]),
                       child: widget.builder(item),
                     ),
                   ),
@@ -134,7 +131,7 @@ class _DockState<T extends Object?> extends State<Dock<T>> {
     );
   }
 
-  void _getCornerOffsets() {
+  void _getOffsets() {
     final RenderBox renderBox = _containerKey.currentContext?.findRenderObject() as RenderBox;
     final position = renderBox.localToGlobal(Offset.zero);
 
@@ -146,8 +143,8 @@ class _DockState<T extends Object?> extends State<Dock<T>> {
     });
   }
 
-  double getScaledSize(int index) {
-    return getPropertyValue(
+  double getAnimatedSize(int index) {
+    return getValueOfProperty(
       index: index,
       baseValue: baseItemHeight,
       maxValue: 100,
@@ -155,8 +152,8 @@ class _DockState<T extends Object?> extends State<Dock<T>> {
     );
   }
 
-  double getTranslationY(int index) {
-    return getPropertyValue(
+  double getYAxis(int index) {
+    return getValueOfProperty(
       index: index,
       baseValue: baseTranslationY,
       maxValue: -22,
@@ -164,7 +161,7 @@ class _DockState<T extends Object?> extends State<Dock<T>> {
     );
   }
 
-  double getPropertyValue({
+  double getValueOfProperty({
     required int index,
     required double baseValue,
     required double maxValue,

@@ -7,9 +7,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-// Examples can assume:
-// class MyDataObject {}
-
 typedef CustomReorderCallback = void Function(int oldIndex, int newIndex);
 
 typedef CustomReorderItemProxyDecorator = Widget Function(Widget child, int index, Animation<double> animation);
@@ -45,58 +42,31 @@ class CustomReorderableList extends StatefulWidget {
     required this.bottomLeft,
     required this.bottomRight,
     required this.onDragStart,
-  })  : assert(itemCount >= 0),
-        assert(
-          (itemExtent == null && prototypeItem == null) || (itemExtent == null && itemExtentBuilder == null) || (prototypeItem == null && itemExtentBuilder == null),
-          'You can only pass one of itemExtent, prototypeItem and itemExtentBuilder.',
-        );
+  });
 
   final IndexedWidgetBuilder itemBuilder;
-
   final int itemCount;
-
   final ReorderCallback onReorder;
-
   final void Function(int index)? onReorderStart;
-
   final void Function(int index)? onReorderEnd;
-
   final ReorderItemProxyDecorator? proxyDecorator;
-
   final EdgeInsetsGeometry? padding;
-
   final Axis scrollDirection;
-
   final bool reverse;
-
   final ScrollController? controller;
-
   final bool? primary;
-
   final ScrollPhysics? physics;
-
   final bool shrinkWrap;
-
   final double anchor;
-
   final double? cacheExtent;
-
   final DragStartBehavior dragStartBehavior;
-
   final ScrollViewKeyboardDismissBehavior keyboardDismissBehavior;
-
   final String? restorationId;
-
   final Clip clipBehavior;
-
   final double? itemExtent;
-
   final ItemExtentBuilder? itemExtentBuilder;
-
   final Widget? prototypeItem;
-
   final double? autoScrollerVelocityScalar;
-
   final Offset topLeft;
   final Offset topRight;
   final Offset bottomLeft;
@@ -105,24 +75,6 @@ class CustomReorderableList extends StatefulWidget {
 
   static ReorderableListState of(BuildContext context) {
     final ReorderableListState? result = context.findAncestorStateOfType<ReorderableListState>();
-    assert(() {
-      if (result == null) {
-        throw FlutterError.fromParts(<DiagnosticsNode>[
-          ErrorSummary('ReorderableList.of() called with a context that does not contain a ReorderableList.'),
-          ErrorDescription(
-            'No ReorderableList ancestor could be found starting from the context that was passed to ReorderableList.of().',
-          ),
-          ErrorHint(
-            'This can happen when the context provided is from the same StatefulWidget that '
-            'built the ReorderableList. Please see the ReorderableList documentation for examples '
-            'of how to refer to an ReorderableListState object:\n'
-            '  https://api.flutter.dev/flutter/widgets/ReorderableListState-class.html',
-          ),
-          context.describeElement('The context used was'),
-        ]);
-      }
-      return true;
-    }());
     return result!;
   }
 
@@ -135,7 +87,7 @@ class CustomReorderableList extends StatefulWidget {
 }
 
 class CustomReorderableListState extends State<CustomReorderableList> {
-  final GlobalKey<CustomSliverReorderableListState> _sliverReorderableListKey = GlobalKey();
+  final GlobalKey<ReorderViewListState> _sliverReorderableListKey = GlobalKey();
 
   void startItemDragReorder({
     required int index,
@@ -167,7 +119,7 @@ class CustomReorderableListState extends State<CustomReorderableList> {
       slivers: <Widget>[
         SliverPadding(
           padding: widget.padding ?? EdgeInsets.zero,
-          sliver: CustomSliverReorderableList(
+          sliver: ReorderViewList(
             bottomLeft: widget.bottomLeft,
             bottomRight: widget.bottomRight,
             topLeft: widget.topLeft,
@@ -189,8 +141,8 @@ class CustomReorderableListState extends State<CustomReorderableList> {
   }
 }
 
-class CustomSliverReorderableList extends StatefulWidget {
-  const CustomSliverReorderableList({
+class ReorderViewList extends StatefulWidget {
+  const ReorderViewList({
     super.key,
     required this.itemBuilder,
     this.findChildIndexCallback,
@@ -207,12 +159,7 @@ class CustomSliverReorderableList extends StatefulWidget {
     required this.topRight,
     required this.bottomLeft,
     required this.bottomRight,
-  })  : autoScrollerVelocityScalar = autoScrollerVelocityScalar ?? _kDefaultAutoScrollVelocityScalar,
-        assert(itemCount >= 0),
-        assert(
-          (itemExtent == null && prototypeItem == null) || (itemExtent == null && itemExtentBuilder == null) || (prototypeItem == null && itemExtentBuilder == null),
-          'You can only pass one of itemExtent, prototypeItem and itemExtentBuilder.',
-        );
+  }) : autoScrollerVelocityScalar = autoScrollerVelocityScalar ?? _kDefaultAutoScrollVelocityScalar;
 
   // An eyeballed value for a smooth scrolling experience.
   static const double _kDefaultAutoScrollVelocityScalar = 50;
@@ -245,41 +192,19 @@ class CustomSliverReorderableList extends StatefulWidget {
   final Offset bottomRight;
 
   @override
-  CustomSliverReorderableListState createState() => CustomSliverReorderableListState();
+  ReorderViewListState createState() => ReorderViewListState();
 
-  static CustomSliverReorderableListState of(BuildContext context) {
-    final CustomSliverReorderableListState? result = context.findAncestorStateOfType<CustomSliverReorderableListState>();
-    assert(() {
-      if (result == null) {
-        throw FlutterError.fromParts(<DiagnosticsNode>[
-          ErrorSummary(
-            'SliverReorderableList.of() called with a context that does not contain a SliverReorderableList.',
-          ),
-          ErrorDescription(
-            'No SliverReorderableList ancestor could be found starting from the context that was passed to SliverReorderableList.of().',
-          ),
-          ErrorHint(
-            'This can happen when the context provided is from the same StatefulWidget that '
-            'built the SliverReorderableList. Please see the SliverReorderableList documentation for examples '
-            'of how to refer to an SliverReorderableList object:\n'
-            '  https://api.flutter.dev/flutter/widgets/SliverReorderableListState-class.html',
-          ),
-          context.describeElement('The context used was'),
-        ]);
-      }
-      return true;
-    }());
+  static ReorderViewListState of(BuildContext context) {
+    final ReorderViewListState? result = context.findAncestorStateOfType<ReorderViewListState>();
     return result!;
   }
 
-  static CustomSliverReorderableListState? maybeOf(BuildContext context) {
-    return context.findAncestorStateOfType<CustomSliverReorderableListState>();
+  static ReorderViewListState? maybeOf(BuildContext context) {
+    return context.findAncestorStateOfType<ReorderViewListState>();
   }
 }
 
-class CustomSliverReorderableListState extends State<CustomSliverReorderableList> with TickerProviderStateMixin {
-  // Map of index -> child state used manage where the dragging item will need
-  // to be inserted.
+class ReorderViewListState extends State<ReorderViewList> with TickerProviderStateMixin {
   final Map<int, _CustomReorderableItemState> _items = <int, _CustomReorderableItemState>{};
 
   final Map<int, _CustomReorderableItemState> _reorderItems = <int, _CustomReorderableItemState>{};
@@ -317,7 +242,7 @@ class CustomSliverReorderableListState extends State<CustomSliverReorderableList
   }
 
   @override
-  void didUpdateWidget(covariant CustomSliverReorderableList oldWidget) {
+  void didUpdateWidget(covariant ReorderViewList oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.itemCount != oldWidget.itemCount) {
       cancelReorder();
@@ -547,7 +472,6 @@ class CustomSliverReorderableListState extends State<CustomSliverReorderableList
   void _dragUpdateItems() {
     bool isInside = updatedDragPosition == null ? true : isPointInsideRectangle(widget.topLeft, widget.topRight, widget.bottomLeft, widget.bottomRight, updatedDragPosition!);
     if (isInside) {
-      assert(_dragInfo != null);
       final double gapExtent = _dragInfo!.itemExtent;
       final double proxyItemStart = _offsetExtent(_dragInfo!.dragPosition - _dragInfo!.dragOffset, _scrollDirection);
       final double proxyItemEnd = proxyItemStart + gapExtent;
@@ -651,7 +575,7 @@ class CustomSliverReorderableListState extends State<CustomSliverReorderableList
     bool isInside = isPointInsideRectangle(widget.topLeft, widget.topRight, widget.bottomLeft, widget.bottomRight, updatedDragPosition ?? Offset.zero);
 
     final Widget child = widget.itemBuilder(context, index);
-    assert(child.key != null, 'All list items must have a key');
+
     final OverlayState overlay = Overlay.of(context, debugRequiredFor: widget);
 
     return _CustomReorderableItem(
@@ -727,7 +651,6 @@ class CustomSliverReorderableListState extends State<CustomSliverReorderableList
 
   @override
   Widget build(BuildContext context) {
-    assert(debugCheckHasOverlay(context));
     final SliverChildBuilderDelegate childrenDelegate = SliverChildBuilderDelegate(
       _itemBuilder,
       childCount: widget.itemCount,
@@ -770,7 +693,7 @@ class _CustomReorderableItem extends StatefulWidget {
 }
 
 class _CustomReorderableItemState extends State<_CustomReorderableItem> {
-  late CustomSliverReorderableListState _listState;
+  late ReorderViewListState _listState;
 
   Offset _startOffset = Offset.zero;
   Offset _targetOffset = Offset.zero;
@@ -794,7 +717,7 @@ class _CustomReorderableItemState extends State<_CustomReorderableItem> {
 
   @override
   void initState() {
-    _listState = CustomSliverReorderableList.of(context);
+    _listState = ReorderViewList.of(context);
     _listState._registerItem(this);
     super.initState();
   }
@@ -918,59 +841,6 @@ class _CustomReorderableItemState extends State<_CustomReorderableItem> {
   }
 }
 
-class CustomReorderableDragStartListener extends StatelessWidget {
-  const CustomReorderableDragStartListener({
-    super.key,
-    required this.child,
-    required this.index,
-    this.enabled = true,
-  });
-
-  final Widget child;
-
-  final int index;
-
-  final bool enabled;
-
-  @override
-  Widget build(BuildContext context) {
-    return Listener(
-      onPointerDown: enabled ? (PointerDownEvent event) => _startDragging(context, event) : null,
-      child: child,
-    );
-  }
-
-  @protected
-  MultiDragGestureRecognizer createRecognizer() {
-    return ImmediateMultiDragGestureRecognizer(debugOwner: this);
-  }
-
-  void _startDragging(BuildContext context, PointerDownEvent event) {
-    final DeviceGestureSettings? gestureSettings = MediaQuery.maybeGestureSettingsOf(context);
-    final CustomSliverReorderableListState? list = CustomSliverReorderableList.maybeOf(context);
-
-    list?.startItemDragReorder(
-      index: index,
-      event: event,
-      recognizer: createRecognizer()..gestureSettings = gestureSettings,
-    );
-  }
-}
-
-class CustomReorderableDelayedDragStartListener extends CustomReorderableDragStartListener {
-  const CustomReorderableDelayedDragStartListener({
-    super.key,
-    required super.child,
-    required super.index,
-    super.enabled,
-  });
-
-  @override
-  MultiDragGestureRecognizer createRecognizer() {
-    return DelayedMultiDragGestureRecognizer(debugOwner: this);
-  }
-}
-
 typedef _DragItemUpdate = void Function(_CustomDragInfo item, Offset position, Offset delta);
 typedef _DragItemCallback = void Function(_CustomDragInfo item);
 
@@ -1014,7 +884,7 @@ class _CustomDragInfo extends Drag {
   final ReorderItemProxyDecorator? proxyDecorator;
   final TickerProvider tickerProvider;
 
-  late CustomSliverReorderableListState listState;
+  late ReorderViewListState listState;
   late int index;
   late Widget child;
   late Offset dragPosition;
@@ -1108,7 +978,7 @@ class _DragItemProxy extends StatelessWidget {
     required this.proxyDecorator,
   });
 
-  final CustomSliverReorderableListState listState;
+  final ReorderViewListState listState;
   final int index;
   final Widget child;
   final Offset position;
@@ -1203,7 +1073,7 @@ class _ReorderableItemGlobalKey extends GlobalObjectKey {
 
   final Key subKey;
   final int index;
-  final CustomSliverReorderableListState state;
+  final ReorderViewListState state;
 
   @override
   bool operator ==(Object other) {
